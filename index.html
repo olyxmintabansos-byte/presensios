@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PresensiOS - Enterprise Attendance</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Main Application Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo">
+        <span class="logo-icon">💠</span>
+        <h1>Presensi<span class="highlight">OS</span></h1>
+      </div>
+    </div>
+    
+    <div class="header-center">
+      <div id="liveClock" class="live-clock">00:00:00 WIB</div>
+    </div>
+    
+    <div class="header-right">
+      <div class="view-switcher">
+        <button id="btnKiosk" class="switcher-btn active">
+          <span class="icon">👤</span> Kiosk Absen
+        </button>
+        <button id="btnHR" class="switcher-btn">
+          <span class="icon">🛡️</span> HR Command Center
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="app-main">
+    
+    <!-- VIEW 1: KIOSK ABSEN -->
+    <section id="viewKiosk" class="view-section active">
+      <div class="kiosk-grid">
+        
+        <!-- Kolom Kiri: Identitas & Kamera -->
+        <div class="kiosk-left">
+          <!-- Card Identitas -->
+          <div class="card card-identity">
+            <h2>Identitas Karyawan</h2>
+            <div class="form-group">
+              <label for="employeeSelect">Pilih Karyawan / NIP</label>
+              <select id="employeeSelect" class="form-control">
+                <option value='{"nip":"EMP-2024-001","name":"Aditya Pratama","div":"IT Engineering"}'>Aditya Pratama | EMP-2024-001 | IT Engineering</option>
+                <option value='{"nip":"EMP-2024-002","name":"Budi Santoso","div":"Finance"}'>Budi Santoso | EMP-2024-002 | Finance</option>
+                <option value='{"nip":"EMP-2024-003","name":"Citra Kirana","div":"Creative"}'>Citra Kirana | EMP-2024-003 | Creative</option>
+                <option value='{"nip":"EMP-2024-004","name":"Dina Lestari","div":"Operations"}'>Dina Lestari | EMP-2024-004 | Operations</option>
+              </select>
+            </div>
+            <div class="selected-employee-info">
+              <div class="info-avatar" id="infoAvatar">AP</div>
+              <div class="info-details">
+                <div class="info-name" id="infoName">Aditya Pratama</div>
+                <div class="info-meta"><span id="infoNIP">EMP-2024-001</span> • <span id="infoDiv">IT Engineering</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Biometrik -->
+          <div class="card card-biometric">
+            <div class="card-header-flex">
+              <h2>Verifikasi Biometrik Wajah</h2>
+              <span class="status-badge live">LIVE</span>
+            </div>
+            
+            <div class="camera-container">
+              <video id="cameraFeed" autoplay playsinline muted></video>
+              <canvas id="fallbackCanvas" class="fallback-canvas" style="display:none;"></canvas>
+              <div class="camera-overlay">
+                <div class="oval-frame"></div>
+                <div class="scan-line"></div>
+              </div>
+              <canvas id="snapshotCanvas" class="hidden"></canvas>
+            </div>
+            
+            <div class="camera-controls">
+              <button id="btnSnapshot" class="btn btn-primary">
+                <span class="icon">📸</span> Ambil Snapshot Wajah
+              </button>
+              <button id="btnResetCamera" class="btn btn-secondary" style="display: none;">
+                <span class="icon">🔄</span> Ulangi
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Radar, Aksi Presensi & Heatmap -->
+        <div class="kiosk-right">
+          
+          <!-- Card Geofencing Radar -->
+          <div class="card card-radar">
+            <h2>Smart Geofencing Radar</h2>
+            <div class="radar-flex">
+              <div class="radar-visual">
+                <div class="radar-circle">
+                  <div class="radar-sweep"></div>
+                  <div class="radar-ping" id="radarPing"></div>
+                </div>
+              </div>
+              <div class="radar-info">
+                <div class="location-status" id="locationStatus">
+                  <span class="status-icon">🟢</span>
+                  <div class="status-text">
+                    <div class="status-title" id="statusTitle">DALAM RADIUS KANTOR</div>
+                    <div class="status-dist" id="statusDist">Jarak: 0 m</div>
+                  </div>
+                </div>
+                <div class="demo-controls">
+                  <button id="btnDemoKantor" class="btn btn-outline btn-sm">📍 Di Kantor (0m)</button>
+                  <button id="btnDemoLuar" class="btn btn-outline btn-sm">🏖️ Luar Radius (750m)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Aksi Presensi -->
+          <div class="card card-action">
+            <div class="tabs">
+              <button class="tab-btn active" data-target="tabMasuk">Masuk</button>
+              <button class="tab-btn" data-target="tabPulang">Pulang</button>
+              <button class="tab-btn" data-target="tabIzin">Izin / Cuti</button>
+            </div>
+            
+            <div class="tab-content active" id="tabMasuk">
+              <div class="action-summary">
+                <div class="summary-time">Target Jam Masuk: 08:00 WIB</div>
+                <div id="masukStatus" class="summary-status badge-success">Tepat Waktu</div>
+              </div>
+              <button id="btnAbsenMasuk" class="btn btn-primary btn-block btn-lg" disabled>
+                <span class="icon">📥</span> Absen Masuk Sekarang
+              </button>
+              <div class="requirement-hint" id="reqHintMasuk">⚠️ Ambil snapshot wajah & pastikan di dalam radius.</div>
+            </div>
+            
+            <div class="tab-content" id="tabPulang" style="display:none;">
+               <div class="action-summary">
+                <div class="summary-time">Absen pulang akan mencatat total jam kerja hari ini.</div>
+              </div>
+              <button id="btnAbsenPulang" class="btn btn-amber btn-block btn-lg" disabled>
+                <span class="icon">📤</span> Absen Pulang
+              </button>
+              <div class="requirement-hint" id="reqHintPulang">⚠️ Ambil snapshot wajah & pastikan di dalam radius.</div>
+            </div>
+            
+            <div class="tab-content" id="tabIzin" style="display:none;">
+              <div class="form-group">
+                <label>Jenis Pengajuan</label>
+                <select id="izinType" class="form-control">
+                  <option value="Sakit Surat Dokter">Sakit (Dengan Surat Dokter)</option>
+                  <option value="Izin Mendesak">Izin Mendesak</option>
+                  <option value="Cuti Tahunan">Cuti Tahunan</option>
+                  <option value="Dinas Luar">Dinas Luar</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Alasan (Opsional)</label>
+                <textarea id="izinReason" class="form-control" rows="2" placeholder="Tulis alasan singkat..."></textarea>
+              </div>
+              <button id="btnAjukanIzin" class="btn btn-blue btn-block">
+                <span class="icon">✈️</span> Ajukan Ketidakhadiran
+              </button>
+            </div>
+          </div>
+
+          <!-- Card Heatmap -->
+          <div class="card card-heatmap">
+            <div class="card-header-flex">
+              <h2>Kehadiran Bulan Ini</h2>
+              <div class="streak-badge">🔥 14 Hari Berturut-turut Hadir Tepat Waktu!</div>
+            </div>
+            <div class="heatmap-container" id="heatmapContainer">
+              <!-- Grid generated via JS -->
+            </div>
+            <div class="heatmap-legend">
+              <span class="legend-item"><div class="legend-box l-green"></div>Tepat Waktu</span>
+              <span class="legend-item"><div class="legend-box l-yellow"></div>Terlambat</span>
+              <span class="legend-item"><div class="legend-box l-blue"></div>Izin/Sakit</span>
+              <span class="legend-item"><div class="legend-box l-gray"></div>Belum/Libur</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: HR COMMAND CENTER -->
+    <section id="viewHR" class="view-section">
+      
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Tingkat Kehadiran</div>
+          <div class="kpi-value" id="kpiRate">95%</div>
+          <div class="kpi-progress"><div class="progress-bar" style="width: 95%; background: var(--emerald);"></div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Total Hadir</div>
+          <div class="kpi-value text-emerald" id="kpiHadir">45</div>
+          <div class="kpi-desc">Karyawan</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Terlambat</div>
+          <div class="kpi-value text-amber" id="kpiTelat">3</div>
+          <div class="kpi-desc">Karyawan</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Izin / Sakit</div>
+          <div class="kpi-value text-blue" id="kpiIzin">2</div>
+          <div class="kpi-desc">Karyawan</div>
+        </div>
+      </div>
+
+      <!-- Audit Log & Filter -->
+      <div class="card hr-table-card">
+        <div class="hr-toolbar">
+          <div class="toolbar-search">
+            <input type="text" id="searchLog" class="form-control" placeholder="🔍 Cari Nama / NIP...">
+          </div>
+          <div class="toolbar-filters">
+            <select id="filterDivisi" class="form-control">
+              <option value="Semua">Semua Divisi</option>
+              <option value="IT Engineering">IT Engineering</option>
+              <option value="Creative">Creative</option>
+              <option value="Finance">Finance</option>
+              <option value="Operations">Operations</option>
+            </select>
+            <select id="filterStatus" class="form-control">
+              <option value="Semua">Semua Status</option>
+              <option value="Masuk Tepat Waktu">Tepat Waktu</option>
+              <option value="Masuk Terlambat">Terlambat</option>
+              <option value="Pulang">Pulang</option>
+              <option value="Izin">Izin / Sakit</option>
+            </select>
+          </div>
+          <div class="toolbar-actions">
+            <button id="btnExportCSV" class="btn btn-outline"><span class="icon">📥</span> CSV</button>
+            <button id="btnPrint" class="btn btn-outline"><span class="icon">🖨️</span> Cetak</button>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Foto Selfie</th>
+                <th>Karyawan</th>
+                <th>Tipe & Waktu</th>
+                <th>Jarak GPS</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody">
+              <!-- Baris digenerate via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: Verifikasi Biometrik -->
+  <div id="modalBiometric" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Detail Verifikasi Biometrik</h3>
+        <button class="close-btn" id="btnCloseModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo-container">
+          <img id="modalPhoto" src="" alt="Bukti Presensi">
+        </div>
+        <div class="modal-details">
+          <p><strong>Nama:</strong> <span id="mNama"></span></p>
+          <p><strong>NIP:</strong> <span id="mNIP"></span></p>
+          <p><strong>Waktu:</strong> <span id="mWaktu"></span></p>
+          <p><strong>Lokasi (GPS):</strong> <span id="mGPS"></span></p>
+          <p><strong>Hash Checksum:</strong> <span id="mHash" class="hash-code"></span></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btnTutupModal">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
