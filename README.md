@@ -6,6 +6,7 @@
   <img src="https://img.shields.io/badge/CSS3-Modern_Dark_Slate-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3" />
   <img src="https://img.shields.io/badge/WebRTC-Biometric_Camera-FF4B4B?style=for-the-badge&logo=webrtc&logoColor=white" alt="WebRTC" />
   <img src="https://img.shields.io/badge/Deploy-GitHub_Pages-222222?style=for-the-badge&logo=githubpages&logoColor=white" alt="GitHub Pages" />
+  <img src="https://img.shields.io/badge/Author-Olyx-10B981?style=for-the-badge&logo=github&logoColor=white" alt="Author" />
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License" />
 </p>
 
@@ -197,7 +198,15 @@ Buka browser pada alamat `http://localhost:3000`.
 
 ---
 
-## 📄 Lisensi & Pembuat
+## 📄 Lisensi & Atribusi Hak Cipta
 
-Dibuat dengan dedikasi penuh oleh **Olyx** ([@olyxmintabansos-byte](https://github.com/olyxmintabansos-byte)).  
-Dirilis di bawah naungan **[Lisensi MIT](https://opensource.org/licenses/MIT)** — bebas digunakan, dikembangkan, dan dimodifikasi untuk keperluan edukasi, komersial, maupun portofolio.
+<p align="center">
+  <img src="https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Olyx-10B981?style=for-the-badge&logo=github" alt="Made by Olyx" />
+  <img src="https://img.shields.io/badge/%C2%A9%202026-Olyx-blue?style=for-the-badge" alt="Copyright 2026 Olyx" />
+</p>
+
+<p align="center">
+  Crafted with passion & precision by <strong><a href="https://github.com/olyxmintabansos-byte">Olyx</a></strong><br>
+  <strong>© 2026 by Olyx (@olyxmintabansos-byte)</strong>. All rights reserved.<br>
+  Distributed under the <a href="https://opensource.org/licenses/MIT">MIT License</a>.
+</p>
